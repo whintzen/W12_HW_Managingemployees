@@ -423,8 +423,11 @@ function updateManager() {
 
       console.log("answer: ", answer);
       console.log(eeName);
+      // Substring the response for Manager_id to pass only the first number value
       let mgrId = answer.mgrid.substring(0, answer.mgrid.indexOf(" "));
       console.log(mgrId);
+      // Parse the response number value which is a string in order to turn it into a numeric value, 
+      // since manager_id is an Integer
       let manId = parseInt(mgrId);
       console.log(manId);
 
@@ -490,8 +493,7 @@ function remEes() {
         "DELETE FROM employee WHERE ?",
       {
           first_name: firstName
-
-      // first_name: answer.name     
+        
       },
       function(err) {
         if (err) throw err;
@@ -504,20 +506,17 @@ function remEes() {
 }
 
 // This function removes a department from the Department database table
-function remDept() {
-  // prompt for removing a Department from the database table
+function remDept() {  
+  // prompt for removing a Department from the database table, Department ID required
+  // This is 1 = Engineering; 2= Sales; 3= Finance; 4=Legal; 
+  // Note:   you need to get the list by wiewing the Department first
   inquirer
     .prompt([
       {
-        type: "input",
-        message: "What Department would you like to Delete?",
-        name: "deptname",
-        // choices: [
-        //   "Engineer", 
-        //   "Sales",
-        //   "Finance",
-        //   "Legal"          
-        // ]
+        // type: "input",
+        type: "getList",
+        message: "What Department would you like to Delete? Enter Department ID",
+        name: "deptid"       
       }
     ])      
     .then(function(answer) {
@@ -525,13 +524,14 @@ function remDept() {
       connection.query(
         "DELETE FROM department WHERE ?",
         {
-          department: answer.deptname             
+          // department: answer.deptname
+          department_id: answer.deptid             
         },
         function(err) {
           if (err) throw err;
-          console.log("Department added successfully!");
+          console.log("Department deleted successfully!");
           // re-prompt the user what they want to do next
-          // startPrompts();
+          startPrompts();
         }
       );
     });
