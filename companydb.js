@@ -1,3 +1,8 @@
+// This application process is run in Node.js using console table, Inquirer and MySQL database
+// It uses the information from the CompanyDB, a MySQL databases, with tables Employees, EErole and Department
+// The application Adds, deletes and updates the Database tables;  It views the tables by employees, by departments,
+// by employee titles/Roles and by Manager
+
 const cTable = require('console.table');
 const inquirer = require("inquirer");
 var mysql = require("mysql");
@@ -28,22 +33,23 @@ function startPrompts() {
   inquirer
   .prompt([
     {
-      type: "list",
+      type: "rawlist",
       message: "What would you like to do?",
       name: "action",
       choices: [
-      "View all Employees", 
-      "View all Employees by Departments", 
-      "View all Employees by Manager",
-      "View all Employees by Titles/Roles",      
-      "View all Departments",
-      "Add New Departments",
-      "Add New Titles/Roles",
-      "Add New Employee",       
-      "Update Employee Manager",
-      "Remove Employee",
-      "Remove Department",
-      "Remove Title/Role"      
+        "View all Employees", //Done
+        // "View all Employees by Departments", 
+        "View all Employees by Manager",
+        "View all Employees by Titles/Roles",      
+        "View all Departments",   //Done
+        "View all Roles",        
+        "Add New Departments",    //done
+        "Add New Titles/Roles",   //done
+        "Add New Employee",       //done
+        "Update Employee Manager",  //done
+        "Remove Employee",
+        "Remove Department",
+        "Remove Title/Role"      
       ]
     }
   ]).then(answer => {
@@ -51,9 +57,9 @@ function startPrompts() {
           case 'View all Employees':
               viewallEes();
               break;
-          case 'View all Employees by Departments':
-              vieweebyDept();
-              break;
+          // case 'View all Employees by Departments':
+          //     vieweebyDept();
+          //     break;
           case 'View all Employees by Manager':
               vieweebyManager();
               break;
@@ -62,6 +68,9 @@ function startPrompts() {
               break;
           case 'View all Departments':
               viewallDept();
+              break;
+          case 'View all Roles':
+              viewallRoles();
               break;
           case 'Add New Departments':
               addnewDept();
@@ -94,58 +103,64 @@ function startPrompts() {
 //View all Employees
 function viewallEes() {
   const eeinnerJoin = "SELECT eeid, first_name, last_name, manager, manager_id, t2.role_id, title, salary, department_id FROM employee t1 INNER JOIN eerole t2 ON t1.role_id = t2.role_id;"
-  // console.cTable("Selecting all employees...\n");
-  console.log("Selecting all employees...\n");
+   console.log("Selecting all employees...\n");  // REMOVE
   connection.query(eeinnerJoin, function(err, res) {
     if (err) throw err;
-    // Log all results of the SELECT statement
+    // Log all results of the SELECT statement which is selecting All Employees by inner joining the  
+    // Employee table to the EErole table by eerole_id 
     console.table(res);
 
-    // console.cTable(res);
+    //Restart the prompts from the beginning
     startPrompts();
   });
 }
 
 // View all Employees by Department
-function vieweebyDept() {
-  // console.cTable("Selecting all employees...\n");
-  console.log("Selecting all employees by Department...\n");
-  connection.query("SELECT * FROM employee", function(err, res) {
-    if (err) throw err;
-    // Log all results of the SELECT statement
-    console.table(res);
-    // console.cTable(res);
-    startPrompts();
-  });
-}
+// function vieweebyDept() {
+//   const eeinnerJoin = "SELECT eeid, first_name, last_name, manager, manager_id, t2.role_id, title, salary, department_id FROM employee t1 INNER JOIN eerole t2 ON t1.role_id = t2.role_id ORDER BY department_id;"
+//   console.log("Selecting all employees by Department...\n");  //REMOVE
+//   connection.query("SELECT * FROM employee", function(err, res) {
+//     if (err) throw err;
+//     // Log all results of the SELECT statement which is selecting All Employees by Departments
+//     console.table(res);
+
+//     //Restart the prompts from the beginning
+//     startPrompts();
+//   });
+// }
 
 // View all Employees by Manager
 function vieweebyManager() {
-  // console.cTable("Selecting all employees...\n");
+  const eeinnerJoin = "SELECT eeid, first_name, last_name, manager, manager_id, t2.role_id, title, salary, department_id FROM employee t1 INNER JOIN eerole t2 ON t1.role_id = t2.role_id ORDER BY manager;"
+ 
   console.log("Selecting all employees by Manager...\n");
-  connection.query("SELECT * FROM employee ORDER by manager", function(err, res) {
-    if (err) throw err;
-    // Log all results of the SELECT statement
+  connection.query(eeinnerJoin, function(err, res) {
+    if (err) throw err;    
+    // Log all results of the SELECT statement which is selecting All Employees by inner joining the  
+    // Employee table to the EErole table by eerole_id and ordering by manager
     console.table(res);
-    // console.cTable(res);
+
+    //Restart the prompts from the beginning
     startPrompts();
   });
 }
 
-// View all Employees by Titles
+// View all Employees by Titles/Roles
 function vieweebyRole() {
-  const eeinnerJoin = "SELECT eeid, first_name, last_name, manager, manager_id, t2.role_id, title, salary, department_id FROM employee t1 INNER JOIN eerole t2 ON t1.role_id = t2.role_id ORDER BY title; "
+  const eeinnerJoin = "SELECT eeid, first_name, last_name, manager, manager_id, t2.role_id, title, salary, department_id FROM employee t1 INNER JOIN eerole t2 ON t1.role_id = t2.role_id ORDER BY title;"
   // console.cTable("Selecting all employees...\n");
   console.log("Selecting all employees by Title/Roles...\n");
   connection.query(eeinnerJoin, function(err, res) {
     if (err) throw err;
-    // Log all results of the SELECT statement
+    // Log all results of the SELECT statement which is selecting All Employees by inner joining the  
+    // Employee table to the EErole table by eerole_id and ordering by title
     console.table(res);
-    // console.cTable(res);
+
+    //Restart the prompts from the beginning
     startPrompts();
   });
 }
-
+        //DONE
 //View all Departments
 function viewallDept() {
   // console.cTable("Selecting all employees...\n");
@@ -159,7 +174,22 @@ function viewallDept() {
     startPrompts();
   });
 }
+    // DONE
+//View all Roles and Salary
+function viewallRoles() {
+  const eeinnerJoin = "SELECT title, salary, t2.department_id, department FROM eerole t1 INNER JOIN department t2 ON t1.department_id = t2.department_id ORDER BY title;"
+  // console.log("Selecting all departments...\n");
+  // connection.query("SELECT * FROM eerole", function(err, res) {
+    connection.query(eeinnerJoin, function(err, res) {
+    if (err) throw err;
+    // Log all results of the SELECT statement
+    console.table(res);
 
+    //Restart the prompts from the beginning
+    startPrompts();
+  });
+}
+            // DONE
 // This function adds a department to the Department database table
 function addnewDept() {
   // prompt for adding a new Department to the database table
@@ -188,7 +218,7 @@ function addnewDept() {
     });
 }
 
-
+                // DONE
 // This function adds a Title/Role, Salary and Department ID
 function addnewRole() {
   // prompt for adding a New Title/Role, Salary and Department ID to the EEROLE database table
@@ -228,7 +258,7 @@ function addnewRole() {
       );
     });
 }
-
+            ///DONE
   // This function adds an Employee
 function addnewEes() {
   // prompt for adding employees to the database
@@ -310,7 +340,7 @@ function addnewEes() {
           last_name: answer.lname,
           role_id: answer.roleid,          
           manager: answer.manager,
-          manager_id: mgrId       
+          manager_id: answer.mgrid       
         },
         function(err) {
           if (err) throw err;
@@ -328,7 +358,7 @@ function updateManager() {
   inquirer
     .prompt([
       {
-        type: "list",
+        type: "rawlist",
         message: "Which employee's do you want to update with a Manager?",
         name: "eename",
         choices: [
@@ -343,7 +373,7 @@ function updateManager() {
         ]
       },
       {
-        type: "list",
+        type: "rawlist",
         message: "Which Manager do you want to set for the selected Employee?",
         name: "mgrname",
         choices: [
@@ -358,10 +388,12 @@ function updateManager() {
         ]
       },
       {
-        type: "list",
+        type: "rawlist",
         message: "What is the Manager ID for the selected Employee?",
         name: "mgrid",
-        // This Manager_id corresponds to the list of Employees ID, Ashley =1, Kevin =2 etc
+        // This Manager_id corresponds to the Employees ID, for Example, Ashley's manager_id =1, Kevin's manager_id =2 etc
+        // Since the Manager_id is an interger, the numbers will be parsed out of the response, so that only the interger
+        // number is passed 
         choices: [
           "1 Ashley Rodriquez", 
           "2 Kevin Tupik", 
@@ -383,33 +415,37 @@ function updateManager() {
       }      
     ])
     .then(function(answer) {
-      console.log("answer: ", answer);
-      console.log("empty space index: ", answer.eename.indexOf(" "));
+      // console.log("answer: ", answer);
+      // console.log("empty space index: ", answer.eename.indexOf(" "));
+
+      // Substring the response to pass only the First Name
       let eeName = answer.eename.substring(0, answer.eename.indexOf(" "));
 
       console.log("answer: ", answer);
-      console.log("empty space index: ", answer.mgrid.indexOf(" "));
+      console.log(eeName);
       let mgrId = answer.mgrid.substring(0, answer.mgrid.indexOf(" "));
+      console.log(mgrId);
       let manId = parseInt(mgrId);
+      console.log(manId);
 
       // let mgrName = answer.mgrname;
 
       // console.log("firstName: ", eeName);
       // when finished prompting, insert a new item into the db with that info
       connection.query(
-        "UPDATE employee SET ? WHERE ?",
+        "UPDATE employee SET ? WHERE ? ",
         [
           {              
-              manager: answer.mgrname
-              // manager_id: answer.mgrid
+              manager: answer.mgrname,
+              manager_id: manId
           },
           {
               first_name: eeName
                        
-          },
-          {
-              manager_id: manId            
           }
+          // {
+          //     manager_id: manId            
+          // }
         ],      
       function(err) {
         if (err) throw err;
