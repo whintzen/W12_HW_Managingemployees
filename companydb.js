@@ -96,13 +96,13 @@ function startPrompts() {
           case 'Exit':
               connection.end(); 
               break;             
-    }
+    }    
   }
 )}
 
 //View all Employees
 function viewallEes() {
-  const eeinnerJoin = "SELECT eeid, first_name, last_name, manager, manager_id, t2.role_id, title, salary, department_id FROM employee t1 INNER JOIN eerole t2 ON t1.role_id = t2.role_id;"
+  const eeinnerJoin = "SELECT eeid, first_name, last_name, manager, manager_id, t2.role_id, title, salary, department_id FROM employee t1 INNER JOIN eerole t2 ON t1.role_id = t2.role_id ORDER BY eeid;"
    console.log("Selecting all employees...\n");  // REMOVE
   connection.query(eeinnerJoin, function(err, res) {
     if (err) throw err;
@@ -110,7 +110,7 @@ function viewallEes() {
     // Employee table to the EErole table by eerole_id 
     console.table(res);
 
-    //Restart the prompts from the beginning
+    // Re-prompt the user what they want to do next
     startPrompts();
   });
 }
@@ -140,7 +140,7 @@ function vieweebyManager() {
     // Employee table to the EErole table by eerole_id and ordering by manager
     console.table(res);
 
-    //Restart the prompts from the beginning
+    // Re-prompt the user what they want to do next
     startPrompts();
   });
 }
@@ -148,7 +148,6 @@ function vieweebyManager() {
 // View all Employees by Titles/Roles
 function vieweebyRole() {
   const eeinnerJoin = "SELECT eeid, first_name, last_name, manager, manager_id, t2.role_id, title, salary, department_id FROM employee t1 INNER JOIN eerole t2 ON t1.role_id = t2.role_id ORDER BY title;"
-  // console.cTable("Selecting all employees...\n");
   console.log("Selecting all employees by Title/Roles...\n");
   connection.query(eeinnerJoin, function(err, res) {
     if (err) throw err;
@@ -156,36 +155,35 @@ function vieweebyRole() {
     // Employee table to the EErole table by eerole_id and ordering by title
     console.table(res);
 
-    //Restart the prompts from the beginning
+    // Re-prompt the user what they want to do next
     startPrompts();
   });
 }
         //DONE
 //View all Departments
 function viewallDept() {
-  // console.cTable("Selecting all employees...\n");
   console.log("Selecting all departments...\n");
   connection.query("SELECT * FROM department", function(err, res) {
     if (err) throw err;
     // Log all results of the SELECT statement
     console.table(res);
 
-    // console.cTable(res);
+   // Re-prompt the user what they want to do next
     startPrompts();
   });
 }
     // DONE
 //View all Roles and Salary
 function viewallRoles() {
-  const eeinnerJoin = "SELECT title, salary, t2.department_id, department FROM eerole t1 INNER JOIN department t2 ON t1.department_id = t2.department_id ORDER BY title;"
-  // console.log("Selecting all departments...\n");
-  // connection.query("SELECT * FROM eerole", function(err, res) {
+  console.log("Selecting all Titles/Roles by Department...\n");
+    const eeinnerJoin = "SELECT title, salary, t2.department_id, department FROM eerole t1 INNER JOIN department t2 ON t1.department_id = t2.department_id ORDER BY title;"
     connection.query(eeinnerJoin, function(err, res) {
-    if (err) throw err;
-    // Log all results of the SELECT statement
+      if (err) throw err;
+    // Log all results of the SELECT statement which is selecting All Employee Roles by inner joining the  
+    // Employee Role table to the Department table by department ID and ordering by title
     console.table(res);
 
-    //Restart the prompts from the beginning
+    // Re-prompt the user what they want to do next
     startPrompts();
   });
 }
@@ -211,7 +209,8 @@ function addnewDept() {
         function(err) {
           if (err) throw err;
           console.log("Department added successfully!");
-          // re-prompt the user what they want to do next
+
+          // Re-prompt the user what they want to do next
           startPrompts();
         }
       );
@@ -252,7 +251,7 @@ function addnewRole() {
         function(err) {
           if (err) throw err;
           console.log("Title/Role added successfully!");
-          // re-prompt the user what they want to do next
+          // Re-prompt the user what they want to do next
           startPrompts();
         }
       );
@@ -311,26 +310,29 @@ function addnewEes() {
         name: "mgrid",
         // This Manager_id corresponds to the list of Employees ID, Ashley =1, Kevin =2 etc
         choices: [
-          // "1 Ashley Rodriquez", 
-          // "2 Kevin Tupik", 
-          // "3 Galal Tammer",
-          // "4 John Doe",
-          // "5 Mike Chan",
-          // "6 Malia Brown",
-          // "7 Sarah Lourd",
-          // "8 Tom Allen"
-          1, 
-          2, 
-          3,
-          4,
-          5,
-          6,
-          7,
-          8
+          "1 Ashley Rodriquez", 
+          "2 Kevin Tupik", 
+          "3 Galal Tammer",
+          "4 John Doe",
+          "5 Mike Chan",
+          "6 Malia Brown",
+          "7 Sarah Lourd",
+          "8 Tom Allen"
+          // 1, 
+          // 2, 
+          // 3,
+          // 4,
+          // 5,
+          // 6,
+          // 7,
+          // 8
         ]
       } 
     ])
     .then(function(answer) {
+      // Substring the response for Manager_id to pass only the first number value
+      let mgrId = answer.mgrid.substring(0, answer.mgrid.indexOf(" "));
+      let manId = parseInt(mgrId);
       // let mgrId = answer.mgrid.substring(0, answer.mgrid.indexOf(" "));
       // when finished prompting, insert a new item into the db with that info
       connection.query(
@@ -340,12 +342,13 @@ function addnewEes() {
           last_name: answer.lname,
           role_id: answer.roleid,          
           manager: answer.manager,
-          manager_id: answer.mgrid       
+          manager_id: manId
+          // manager_id: answer.mgrid       
         },
         function(err) {
           if (err) throw err;
           console.log("Employee added successfully!");
-          // re-prompt the user what they want to do next
+          // Re-prompt the user what they want to do next
           startPrompts();
         }
       );
@@ -403,21 +406,10 @@ function updateManager() {
           "6 Malia Brown",
           "7 Sarah Lourd",
           "8 Tom Allen"
-          // 1, 
-          // 2, 
-          // 3,
-          // 4,
-          // 5,
-          // 6,
-          // 7,
-          // 8
         ]
       }      
     ])
     .then(function(answer) {
-      // console.log("answer: ", answer);
-      // console.log("empty space index: ", answer.eename.indexOf(" "));
-
       // Substring the response to pass only the First Name
       let eeName = answer.eename.substring(0, answer.eename.indexOf(" "));
 
@@ -430,10 +422,7 @@ function updateManager() {
       // since manager_id is an Integer
       let manId = parseInt(mgrId);
       console.log(manId);
-
-      // let mgrName = answer.mgrname;
-
-      // console.log("firstName: ", eeName);
+      
       // when finished prompting, insert a new item into the db with that info
       connection.query(
         "UPDATE employee SET ? WHERE ? ",
@@ -446,14 +435,12 @@ function updateManager() {
               first_name: eeName
                        
           }
-          // {
-          //     manager_id: manId            
-          // }
+          
         ],      
       function(err) {
         if (err) throw err;
         console.log("Manager Updated successfully!");
-        // re-prompt the user for if they want to bid or post
+        // Rre-prompt the user for if they want to bid or post
         startPrompts();
         // connection.end();
     });
@@ -461,38 +448,46 @@ function updateManager() {
   });
 }
 
- // This Function Removes an employee
+ // This Function Removes an employee from the Database
 function remEes() {
   // prompt for removing employees from the database
   inquirer
     .prompt([
       {
-        type: "list",
-        message: "Which employee do you want to remove?",
-        name: "name",
-        choices: [
-          "Ashley Rodriquez", 
-          "Kevin Tupik", 
-          "Galal Tammer",
-          "John Doe",
-          "Mike Chan",
-          "Malia Brown",
-          "Sarah Lourd",
-          "Tom Allen"
-        ]
-      }  
+        type: "input",
+        message: "What is the First Name of the employee you want to remove?",
+        name: "fname",
+        // choices: [
+        //   "Ashley Rodriquez", 
+        //   "Kevin Tupik", 
+        //   "Galal Tammer",
+        //   "John Doe",
+        //   "Mike Chan",
+        //   "Malia Brown",
+        //   "Sarah Lourd",
+        //   "Tom Allen"
+        // ]
+      },
+      {
+        type: "input",
+        message: "What is the Last Name of the employee you want to remove?",
+        name: "lname",
+      }   
     ])
     .then(function(answer) {
-      console.log("answer: ", answer);
-      console.log("empty space index: ", answer.name.indexOf(" "));
-      let firstName = answer.name.substring(0, answer.name.indexOf(" "));
+      // console.log("answer: ", answer);
+      // console.log("empty space index: ", answer.name.indexOf(" "));
+      // This step will read the string of full name until it encounters the first space in the full name.  That means the  
+      // first space is after the First Name, so the step will place that result into the response 
+      // let firstName = answer.name.substring(0, answer.name.indexOf(" "));
 
-      console.log("firstName: ", firstName);
-      // when finished prompting, insert a new item into the db with that info
+      // console.log("firstName: ", firstName);
+      // when finished prompting, delete the employee by their first name
       connection.query(
         "DELETE FROM employee WHERE ?",
       {
-          first_name: firstName
+          first_name: fname,
+          last_name: lname
         
       },
       function(err) {
@@ -513,20 +508,24 @@ function remDept() {
   inquirer
     .prompt([
       {
-        // type: "input",
-        type: "getList",
+        type: "input",
         message: "What Department would you like to Delete? Enter Department ID",
         name: "deptid"       
       }
     ])      
     .then(function(answer) {
+      // let dept = answer.deptid;
+      // const eeinnerJoin = `DELETE department , eerole FROM department INNER JOIN eerole ON eerole.department_id = department.department_id WHERE department.department_id=${dept}`
+      // SELECT title, salary, t2.department_id, department FROM eerole t1 INNER JOIN department t2 ON t1.department_id = t2.department_id ORDER BY department_id;"
+           
       // when finished prompting, insert a new item into the db with that info
+      // connection.query(eeinnerJoin,
       connection.query(
         "DELETE FROM department WHERE ?",
         {
           // department: answer.deptname
           department_id: answer.deptid             
-        },
+        },        
         function(err) {
           if (err) throw err;
           console.log("Department deleted successfully!");
