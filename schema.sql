@@ -10,6 +10,8 @@ CREATE TABLE department (
   PRIMARY KEY (department_id) 
 );
 
+-- Added the ON Delete Cascade in order to remove the department 
+-- from both the department table and the eerole table 
 CREATE TABLE eerole (
   role_id INT NOT NULL AUTO_INCREMENT, 
   title VARCHAR(30) NULL,
@@ -17,6 +19,7 @@ CREATE TABLE eerole (
   department_id INT, 
   PRIMARY KEY (role_id),
   FOREIGN KEY (department_id) REFERENCES department (department_id)
+  ON DELETE CASCADE
 );
 
 -- added the fields Manager to help see the Manager Names instead of the ID
@@ -29,7 +32,8 @@ CREATE TABLE employee (
   manager_id INT,
     PRIMARY KEY (eeid),
     FOREIGN KEY (role_id) REFERENCES eerole (role_id),
-    FOREIGN KEY (manager_id) REFERENCES employee (eeid)    
+    FOREIGN KEY (manager_id) REFERENCES employee (eeid)
+    ON DELETE CASCADE    
 );
 
 

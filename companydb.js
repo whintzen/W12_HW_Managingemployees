@@ -362,37 +362,37 @@ function updateManager() {
     .prompt([
       {
         type: "rawlist",
-        message: "Which employee's do you want to update with a Manager?",
+        message: "Which employee do you want to update with a Manager?",
         name: "eename",
         choices: [
-          "Ashley Rodriquez", 
-          "Kevin Tupik", 
-          "Galal Tammer",
-          "John Doe",
-          "Mike Chan",
-          "Malia Brown",
-          "Sarah Lourd",
-          "Tom Allen"
+          "Ashley Rodriquez Lead Engineer", 
+          "Kevin Tupik SoftWare Engineer", 
+          "Galal Tammer Software Engineer",
+          "John Doe Sales Manager",
+          "Mike Chan Sales Person",
+          "Malia Brown Accountant",
+          "Sarah Lourd Legal Team Lead",
+          "Tom Allen Lawyer"
         ]
       },
       {
         type: "rawlist",
-        message: "Which Manager do you want to set for the selected Employee?",
+        message: "Select a Manager for the employee that is in the same department",
         name: "mgrname",
         choices: [
-          "Ashley Rodriquez", 
-          "Kevin Tupik", 
-          "Galal Tammer",
-          "John Doe",
-          "Mike Chan",
-          "Malia Brown",
-          "Sarah Lourd",
-          "Tom Allen"
+          "Ashley Rodriquez Lead Engineer", 
+          "Kevin Tupik SoftWare Engineer", 
+          "Galal Tammer Software Engineer",
+          "John Doe Sales Manager",
+          "Mike Chan Sales Person",
+          "Malia Brown Accountant",
+          "Sarah Lourd Legal Team Lead",
+          "Tom Allen Lawyer"
         ]
       },
       {
         type: "rawlist",
-        message: "What is the Manager ID for the selected Employee?",
+        message: "What is the Manager ID? Select the same Manager",
         name: "mgrid",
         // This Manager_id corresponds to the Employees ID, for Example, Ashley's manager_id =1, Kevin's manager_id =2 etc
         // Since the Manager_id is an interger, the numbers will be parsed out of the response, so that only the interger
@@ -412,9 +412,24 @@ function updateManager() {
     .then(function(answer) {
       // Substring the response to pass only the First Name
       let eeName = answer.eename.substring(0, answer.eename.indexOf(" "));
-
       console.log("answer: ", answer);
       console.log(eeName);
+      // Substring the response to pass only the First Name
+      // let mgrName = answer.mgrname.substring(0, answer.mgrname.indexOf(" "));
+      // let mgrName = answer.mgrname.substring(0, answer.mgrname.indexOf(" ") + 1);
+      var index = answer.mgrname.indexOf( " ", answer.mgrname.indexOf( " " ) + 1);
+      let mgrName = answer.mgrname.substr( 0, index );
+
+      // let mgrName = index >= 0 ? answer.mgrname.substr( 0, index ) : answer.mgrname.substr( index + 1 );
+
+      // var firstChunk = index >= 0 ? str.substr( 0, index ) : str.substr( index + 1 );
+
+      // var firstChunk = str.substr( 0, index );
+
+      // var index = str.indexOf( ' ', str.indexOf( ' ' ) + 1 );
+      console.log("answer: ", answer);
+      console.log(mgrName);
+     
       // Substring the response for Manager_id to pass only the first number value
       let mgrId = answer.mgrid.substring(0, answer.mgrid.indexOf(" "));
       console.log(mgrId);
@@ -428,7 +443,7 @@ function updateManager() {
         "UPDATE employee SET ? WHERE ? ",
         [
           {              
-              manager: answer.mgrname,
+              manager: mgrName,
               manager_id: manId
           },
           {
@@ -456,38 +471,33 @@ function remEes() {
       {
         type: "input",
         message: "What is the First Name of the employee you want to remove?",
-        name: "fname",
-        // choices: [
-        //   "Ashley Rodriquez", 
-        //   "Kevin Tupik", 
-        //   "Galal Tammer",
-        //   "John Doe",
-        //   "Mike Chan",
-        //   "Malia Brown",
-        //   "Sarah Lourd",
-        //   "Tom Allen"
-        // ]
-      },
-      {
-        type: "input",
-        message: "What is the Last Name of the employee you want to remove?",
-        name: "lname",
-      }   
+        name: "name",
+        choices: [
+          "Ashley Rodriquez", 
+          "Kevin Tupik", 
+          "Galal Tammer",
+          "John Doe",
+          "Mike Chan",
+          "Malia Brown",
+          "Sarah Lourd",
+          "Tom Allen"
+        ]
+      }
+       
     ])
     .then(function(answer) {
       // console.log("answer: ", answer);
       // console.log("empty space index: ", answer.name.indexOf(" "));
       // This step will read the string of full name until it encounters the first space in the full name.  That means the  
       // first space is after the First Name, so the step will place that result into the response 
-      // let firstName = answer.name.substring(0, answer.name.indexOf(" "));
+      let firstName = answer.name.substring(0, answer.name.indexOf(" "));
 
       // console.log("firstName: ", firstName);
       // when finished prompting, delete the employee by their first name
       connection.query(
         "DELETE FROM employee WHERE ?",
       {
-          first_name: fname,
-          last_name: lname
+          first_name: firstName          
         
       },
       function(err) {
