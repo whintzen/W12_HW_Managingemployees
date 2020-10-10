@@ -21,7 +21,9 @@ INSERT INTO employee (first_name, last_name, role_id) VALUES ('Malia', 'Brown', 
 INSERT INTO employee (first_name, last_name, role_id) VALUES ('Sarah', 'Lourd', 6);
 INSERT INTO employee (first_name, last_name, role_id) VALUES ('Tom', 'Allen', 7);
 
-
+SELECT eeid, first_name, last_name, manager, manager_id, t2.role_id, title, salary, department_id 
+FROM employee t1 
+    INNER JOIN eerole t2 ON t1.role_id = t2.role_id ORDER BY eeid;
 
 
 
