@@ -98,12 +98,16 @@ function startPrompts() {
 //View all Employees
 function viewallEes() {
   const eeinnerJoin = "SELECT eeid, first_name, last_name, manager, manager_id, t2.role_id, title, salary, department_id FROM employee t1 INNER JOIN eerole t2 ON t1.role_id = t2.role_id ORDER BY eeid;"
-   console.log("Selecting all employees...\n");  // REMOVE
+   console.log("Selecting all employees ordered by EEid...\n");  // REMOVE
   connection.query(eeinnerJoin, function(err, res) {
     if (err) throw err;
     // Log all results of the SELECT statement which is selecting All Employees by inner joining the  
     // Employee table to the EErole table by eerole_id 
     console.table(res);
+    // const eenames= res.map(function(employee) {
+    //  return employee.first_name + "" + employee.last_name;
+    // })
+    // console.table(eenames);
 
     // Re-prompt the user what they want to do next
     startPrompts();
@@ -242,8 +246,17 @@ function addnewRole() {
            
   // This function adds an Employee
 function addnewEes() {
+  const eeinnerJoin = "SELECT eeid, first_name, last_name, manager, manager_id, t2.role_id, title, salary, department_id FROM employee t1 INNER JOIN eerole t2 ON t1.role_id = t2.role_id ORDER BY eeid;"
   console.log("Adding a new Employee...\n");
+  connection.query(eeinnerJoin, function(err, res) {
+    if (err) throw err;
+    // Log all results of the SELECT statement which is selecting All Employees by inner joining the  
+    // Employee table to the EErole table by eerole_id 
+    console.table(res);
+    addeeInquirer();
+  });
   // prompt for adding employees to the database
+  let addeeInquirer = () => {
   inquirer
     .prompt([
       {
@@ -252,70 +265,42 @@ function addnewEes() {
         name: "fname"
       },
       {
-          type: "input",
-          message: "What is your Employee Last Name?",
-          name: "lname"
+        type: "input",
+        message: "What is your Employee Last Name?",
+        name: "lname"
       },
       {
-        name: "roleid",  
-        type: "list",
-        message: "What is the Employee's role ID?",
-         // This Numbered list represents the Employees Titles/Roles, with Lead Engineer=1, Software Engineer=2,
-         // Sales Manager = 3, Sales Person = 4, Accountant = 5, Legal Team Lead = 6, Lawyer = 7 etc          
-        choices: [
-           "1 Lead Engineer", 
-           "2 Software Engineer", 
-           "3 Sales Manager",
-           "4 Sales Person",
-           "5 Accountant",
-           "6 Legal Team Lead",
-           "7 Lawyer"
-         ]
-     },
+        name: "roleid",        
+        type: "input",
+        message: "What is the Employee's role ID?"
+      },
       {
         name: "mgrname",
-        type: "list",
-        message: "Who is Employee's Manager? Select one from the same Role/Title",        
-        choices: [
-          "Ashley Rodriquez Lead Engineer", 
-          "Kevin Tupik SoftWare Engineer", 
-          "Galal Tammer Software Engineer",
-          "John Doe Sales Manager",
-          "Mike Chan Sales Person",
-          "Malia Brown Accountant",
-          "Sarah Lourd Legal Team Lead",
-          "Tom Allen Lawyer"
-        ]
+        type: "input",
+        message: "Who is Employee's Manager? Enter Full Name of one from the same or similar Role/Title"   
       },
       {
-        type: "list",
-        message: "What is the Employee's Manager ID: Select the same Manager to get the ID?",
+        type: "input",
+        message: "What is the Employee's Manager ID: Select the Manager's ID?",
         name: "mgrid",
-        // This Manager_id corresponds to the list of Employees ID, Ashley =1, Kevin =2 etc
-        choices: [
-          "1 Ashley Rodriquez", 
-          "2 Kevin Tupik", 
-          "3 Galal Tammer",
-          "4 John Doe",
-          "5 Mike Chan",
-          "6 Malia Brown",
-          "7 Sarah Lourd",
-          "8 Tom Allen"
-        ]
+        
       } 
     ])
     .then(function(answer) {
       // Substring the response to pass the Manager's full Name
-      var index = answer.mgrname.indexOf( " ", answer.mgrname.indexOf( " " ) + 1);
-      let mgrName = answer.mgrname.substr( 0, index );
+
+      // var index = answer.mgrname.indexOf( " ", answer.mgrname.indexOf( " " ) + 1);
+      // let mgrName = answer.mgrname.substr( 0, index );
 
       // Substring the response for Manager_id to pass only the first number value
-      let mgrId = answer.mgrid.substring(0, answer.mgrid.indexOf(" "));
-      let manId = parseInt(mgrId);
+
+      // let mgrId = answer.mgrid.substring(0, answer.mgrid.indexOf(" "));
+      // let manId = parseInt(mgrId);
 
        // Substring the response for Role_id to pass only the first number value, then parse it to return as an Integer
-       let role = answer.roleid.substring(0, answer.roleid.indexOf(" "));
-       let title = parseInt(role);
+      
+       //  let role = answer.roleid.substring(0, answer.roleid.indexOf(" "));
+      //  let title = parseInt(role);
       
       // when finished prompting, insert a new item into the db with that info
       connection.query(
@@ -323,10 +308,13 @@ function addnewEes() {
         {
           first_name: answer.fname,
           last_name: answer.lname,
-          role_id: title,          
-          manager: mgrName,
-          manager_id: manId
-          // manager_id: answer.mgrid       
+          role_id: answer.roleid,
+          manager: answer.mgrname,
+          manager_id: answer.mgrid
+          // role_id: title,                   
+          // manager: mgrName,
+          // manager_id: manId
+                
         },
         function(err) {
           if (err) throw err;
@@ -336,7 +324,7 @@ function addnewEes() {
         }
       );
     });
-}
+}}
 
 // This step Updates the Employees Manager in the Employees database Table
 function updateManager() {
@@ -495,58 +483,44 @@ function remEes() {
       // console.log("firstName: ", firstName);
       // when finished prompting, delete the employee by their first name
       
-    //   connection.query(
-    //     "DELETE FROM employee WHERE ?",
-    //   {          
-    //       first_name: firstName      
-    //   },
-    //   function(err) {
-    //     if (err) throw err;
-    //     // console.log("Employee deleted successfully!");
-    //     // re-prompt the user for if they want to bid or post
-    //     // startPrompts();
-      
-    // });
-    connection.query(
-      "SELECT FROM employee WHERE ? ",
+     connection.query(
+      "SELECT * FROM employee WHERE ?",
         {
           manager_id: manId
-        },
+      },
         function(err, res) {
           if (err) throw err;
-    });
-     
-    connection.query(
-        "UPDATE employee SET ? WHERE ? ",
-      [
-        {
-          manager: null
-        },
-        {
-            manager_id: manId
-        }
-      ],
-      function(err, res) {
-        if (err) throw err;
-        console.log("Employee deleted successfully!");
-        // res.send('true');
-        // re-prompt the user for if they want to bid or post
-        // startPrompts();
-    });
-
+     connection.query(
+      "UPDATE employee SET ? WHERE ? ",
+          [
+            {
+              manager: null,
+              manager_id: null
+            },
+            {
+                manager_id: manId
+            }
+          ],
+          function(err, res) {
+            if (err) throw err;
+            // res.send('true');
+            // re-prompt the user for if they want to bid or post
+            // startPrompts();
     connection.query(
       "DELETE FROM employee WHERE ?",
-      {          
-          first_name: firstName      
-      },
-      function(err) {
-        if (err) throw err;
-        // console.log("Employee deleted successfully!");
-        // re-prompt the user for if they want to bid or post
-        // startPrompts();
-      
-    });
-
+            {          
+               first_name: firstName      
+            },
+          function(err) {
+            if (err) throw err;
+             console.log("Employee deleted successfully!");
+                // re-prompt the user for if they want to bid or post
+             startPrompts();
+              
+            });
+        });    
+    });    
+   
   });
 }
 
