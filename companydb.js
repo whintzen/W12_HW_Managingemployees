@@ -101,14 +101,11 @@ function viewallEes() {
    console.log("Selecting all employees ordered by EEid...\n");  // REMOVE
   connection.query(eeinnerJoin, function(err, res) {
     if (err) throw err;
+
     // Log all results of the SELECT statement which is selecting All Employees by inner joining the  
     // Employee table to the EErole table by eerole_id 
     console.table(res);
-    // const eenames= res.map(function(employee) {
-    //  return employee.first_name + "" + employee.last_name;
-    // })
-    // console.table(eenames);
-
+    
     // Re-prompt the user what they want to do next
     startPrompts();
   });
@@ -120,7 +117,8 @@ function vieweebyManager() {
  
   console.log("Selecting all employees by Manager...\n");
   connection.query(eeinnerJoin, function(err, res) {
-    if (err) throw err;    
+    if (err) throw err; 
+
     // Log all results of the SELECT statement which is selecting All Employees by inner joining the  
     // Employee table to the EErole table by eerole_id and ordering by manager
     console.table(res);
@@ -136,6 +134,7 @@ function vieweebyRole() {
   console.log("Selecting all employees by Title/Roles...\n");
   connection.query(eeinnerJoin, function(err, res) {
     if (err) throw err;
+
     // Log all results of the SELECT statement which is selecting All Employees by inner joining the  
     // Employee table to the EErole table by eerole_id and ordering by title
     console.table(res);
@@ -150,6 +149,7 @@ function viewallDept() {
   console.log("Selecting all departments...\n");
   connection.query("SELECT * FROM department", function(err, res) {
     if (err) throw err;
+
     // Log all results of the SELECT statement
     console.table(res);
 
@@ -161,9 +161,10 @@ function viewallDept() {
 //View all Roles and Salary
 function viewallRoles() {
   console.log("Selecting all Titles/Roles by Department...\n");
-    const eeinnerJoin = "SELECT title, salary, t2.department_id, department FROM eerole t1 INNER JOIN department t2 ON t1.department_id = t2.department_id ORDER BY title;"
+    const eeinnerJoin = "SELECT title, salary, role_id, t2.department_id, department FROM eerole t1 INNER JOIN department t2 ON t1.department_id = t2.department_id ORDER BY title;"
     connection.query(eeinnerJoin, function(err, res) {
       if (err) throw err;
+
     // Log all results of the SELECT statement which is selecting All Employee Roles by inner joining the  
     // Employee Role table to the Department table by department ID and ordering by title
     console.table(res);
@@ -244,12 +245,14 @@ function addnewRole() {
     });
 }
            
-  // This function adds an Employee
+  // This function allows you to add an Employee
 function addnewEes() {
-  const eeinnerJoin = "SELECT eeid, first_name, last_name, manager, manager_id, t2.role_id, title, salary, department_id FROM employee t1 INNER JOIN eerole t2 ON t1.role_id = t2.role_id ORDER BY eeid;"
+  //Select all the employees currently in the Database as this will provide helpful information with the prompts
+  const eeinnerJoin = "SELECT title, salary, role_id, t2.department_id, department FROM eerole t1 INNER JOIN department t2 ON t1.department_id = t2.department_id ORDER BY title;"
   console.log("Adding a new Employee...\n");
   connection.query(eeinnerJoin, function(err, res) {
     if (err) throw err;
+
     // Log all results of the SELECT statement which is selecting All Employees by inner joining the  
     // Employee table to the EErole table by eerole_id 
     console.table(res);
@@ -273,35 +276,9 @@ function addnewEes() {
         name: "roleid",        
         type: "input",
         message: "What is the Employee's role ID?"
-      },
-      {
-        name: "mgrname",
-        type: "input",
-        message: "Who is Employee's Manager? Enter Full Name of one from the same or similar Role/Title"   
-      },
-      {
-        type: "input",
-        message: "What is the Employee's Manager ID: Select the Manager's ID?",
-        name: "mgrid",
-        
-      } 
+      }
     ])
     .then(function(answer) {
-      // Substring the response to pass the Manager's full Name
-
-      // var index = answer.mgrname.indexOf( " ", answer.mgrname.indexOf( " " ) + 1);
-      // let mgrName = answer.mgrname.substr( 0, index );
-
-      // Substring the response for Manager_id to pass only the first number value
-
-      // let mgrId = answer.mgrid.substring(0, answer.mgrid.indexOf(" "));
-      // let manId = parseInt(mgrId);
-
-       // Substring the response for Role_id to pass only the first number value, then parse it to return as an Integer
-      
-       //  let role = answer.roleid.substring(0, answer.roleid.indexOf(" "));
-      //  let title = parseInt(role);
-      
       // when finished prompting, insert a new item into the db with that info
       connection.query(
         "INSERT INTO employee SET ?",
@@ -309,12 +286,8 @@ function addnewEes() {
           first_name: answer.fname,
           last_name: answer.lname,
           role_id: answer.roleid,
-          manager: answer.mgrname,
-          manager_id: answer.mgrid
-          // role_id: title,                   
-          // manager: mgrName,
-          // manager_id: manId
-                
+          // title: answer.title,
+          // department_id: answer.deptid                         
         },
         function(err) {
           if (err) throw err;
@@ -328,57 +301,37 @@ function addnewEes() {
 
 // This step Updates the Employees Manager in the Employees database Table
 function updateManager() {
+  const eeinnerJoin = "SELECT eeid, first_name, last_name, manager, manager_id, t2.role_id, title, salary, department_id FROM employee t1 INNER JOIN eerole t2 ON t1.role_id = t2.role_id ORDER BY eeid;"
   console.log("Updating an Employee with a Manager...\n");
+  connection.query(eeinnerJoin, function(err, res) {
+    if (err) throw err;
+
+    // Log all results of the SELECT statement which is selecting All Employees by inner joining the  
+    // Employee table to the EErole table by eerole_id 
+    console.table(res);
+    updatemgrInquirer();
+  });
   // prompt for updating the employees Manage in the Employees table
+  let updatemgrInquirer = () => {
   inquirer
     .prompt([
       {
-        type: "list",
+        // type: "list",
+        type: "input",
         message: "Which employee do you want to update with a Manager?",
-        name: "eename",
-        choices: [
-          "Ashley Rodriquez Lead Engineer", 
-          "Kevin Tupik SoftWare Engineer", 
-          "Galal Tammer Software Engineer",
-          "John Doe Sales Manager",
-          "Mike Chan Sales Person",
-          "Malia Brown Accountant",
-          "Sarah Lourd Legal Team Lead",
-          "Tom Allen Lawyer"
-        ]
+        name: "eename"        
       },
       {
-        type: "list",
-        message: "Select a Manager for the employee that is in the same department",
-        name: "mgrname",
-        choices: [
-          "Ashley Rodriquez Lead Engineer", 
-          "Kevin Tupik SoftWare Engineer", 
-          "Galal Tammer Software Engineer",
-          "John Doe Sales Manager",
-          "Mike Chan Sales Person",
-          "Malia Brown Accountant",
-          "Sarah Lourd Legal Team Lead",
-          "Tom Allen Lawyer"
-        ]
+        // type: "list",
+        type: "input",
+        message: "Enter a Manager for the employee, that is in the same department",
+        name: "mgrname"        
       },
       {
-        type: "list",
-        message: "What is the Manager ID? Select the same Manager",
-        name: "mgrid",
-        // This Manager_id corresponds to the Employees ID, for Example, Ashley's manager_id =1, Kevin's manager_id =2 etc
-        // Since the Manager_id is an interger, the numbers will be parsed out of the response, so that only the interger
-        // number is passed 
-        choices: [
-          "1 Ashley Rodriquez", 
-          "2 Kevin Tupik", 
-          "3 Galal Tammer",
-          "4 John Doe",
-          "5 Mike Chan",
-          "6 Malia Brown",
-          "7 Sarah Lourd",
-          "8 Tom Allen"
-        ]
+        // type: "list",
+        type: "input",
+        message: "What is the Manager ID? Select the EEid of the Manager selected",
+        name: "mgrid"        
       }      
     ])
     .then(function(answer) {
@@ -386,23 +339,27 @@ function updateManager() {
       let eeName = answer.eename.substring(0, answer.eename.indexOf(" "));      
 
       // Substring the response to pass the Manager's full Name
-      var index = answer.mgrname.indexOf( " ", answer.mgrname.indexOf( " " ) + 1);
-      let mgrName = answer.mgrname.substr( 0, index );   
+
+      // var index = answer.mgrname.indexOf( " ", answer.mgrname.indexOf( " " ) + 1);
+      // let mgrName = answer.mgrname.substr( 0, index );   
            
       // Substring the response for Manager_id to pass only the first number value
-      let mgrId = answer.mgrid.substring(0, answer.mgrid.indexOf(" "));
+
+      // let mgrId = answer.mgrid.substring(0, answer.mgrid.indexOf(" "));
       
       // Parse the response number value which is a string in order to turn it into a numeric value, 
       // since manager_id is an Integer
-      let manId = parseInt(mgrId);
+      // let manId = parseInt(mgrId);
             
       // when finished prompting, insert a new item into the db with that info
       connection.query(
         "UPDATE employee SET ? WHERE ? ",
         [
           {              
-              manager: mgrName,
-              manager_id: manId
+              // manager: mgrName,
+              // manager_id: manId 
+              manager: answer.mgrname,
+              manager_id: answer.mgrid
           },
           {
               first_name: eeName
@@ -419,75 +376,61 @@ function updateManager() {
     });
 
   });
-}
+}}
 
  // This Function Removes an employee from the Database
 function remEes() {
+  //Select all the employees currently in the Database as this will provide helpful information with the prompts
+  const eeinnerJoin = "SELECT eeid, first_name, last_name, manager, manager_id, t2.role_id, title, salary, department_id FROM employee t1 INNER JOIN eerole t2 ON t1.role_id = t2.role_id ORDER BY eeid;"
   console.log("Removing an Employee...\n");
+  connection.query(eeinnerJoin, function(err, res) {
+    if (err) throw err;
+
+    // Log all results of the SELECT statement which is selecting All Employees by inner joining the  
+    // Employee table to the EErole table by eerole_id 
+    console.table(res);
+    removeEesInquirer();
+  });
   // prompt for removing employees from the database
+  let removeEesInquirer = () => {
   inquirer
     .prompt([
       {
-        type: "list",
+        type: "input",
         message: "What is the Name of the employee you want to remove?",
-        name: "name",
-        choices: [
-          "Ashley Rodriquez", 
-          "Kevin Tupik", 
-          "Galal Tammer",
-          "John Doe",
-          "Mike Chan",
-          "Malia Brown",
-          "Sarah Lourd",
-          "Tom Allen"
-        ]
+        name: "name"
       },
       {
-        type: "list",
-        message: "What is the Employee ID? Select the same Employee",
-        name: "mgrid",
-        // This Manager_id corresponds to the Employees ID, for Example, Ashley's manager_id =1, Kevin's manager_id =2 etc
-        // Since the Manager_id is an interger, the numbers will be parsed out of the response, so that only the interger
-        // number is passed 
-        choices: [
-          "1 Ashley Rodriquez", 
-          "2 Kevin Tupik", 
-          "3 Galal Tammer",
-          "4 John Doe",
-          "5 Mike Chan",
-          "6 Malia Brown",
-          "7 Sarah Lourd",
-          "8 Tom Allen"
-        ]
+        type: "input",
+        message: "What is the Employee ID? Select the EEid of the Employee",
+        name: "eeid"
+        
       } 
        
     ])
     .then(function(answer) {
-      // console.log("answer: ", answer);
-      // console.log("empty space index: ", answer.name.indexOf(" "));
-      // This step will read the string of full name until it encounters the first space in the full name.  That means the  
-      // first space is after the First Name, so the step will place that result into the response 
-      let mgrName = answer.name;
-       console.log("mgrName: ", mgrName);
-
+      // Substring the response for Employee's name to only get the first number value
       let firstName = answer.name.substring(0, answer.name.indexOf(" "));
 
+      //The Manager id is a foreign key to Employee id
+      let mgrId = answer.eeid;
+
       // Substring the response for Manager_id to pass only the first number value
-      let mgrId = answer.mgrid.substring(0, answer.mgrid.indexOf(" "));
-      console.log("mgrId: ", mgrId);
+      // let mgrId = answer.mgrid.substring(0, answer.mgrid.indexOf(" "));
+      // console.log("mgrId: ", mgrId);
        // Parse the response number value which is a string in order to turn it into a numeric value, 
       // since manager_id is an Integer
-      let manId = parseInt(mgrId);
-      console.log("manId: ", manId);
 
-      // console.log("firstName: ", firstName);
-      // when finished prompting, delete the employee by their first name
+      // let manId = parseInt(mgrId);
+      // console.log("manId: ", manId);
       
      connection.query(
       "SELECT * FROM employee WHERE ?",
+      [
         {
-          manager_id: manId
-      },
+          manager_id: mgrId
+      }
+      ],
         function(err, res) {
           if (err) throw err;
      connection.query(
@@ -498,14 +441,11 @@ function remEes() {
               manager_id: null
             },
             {
-                manager_id: manId
+                manager_id: mgrId
             }
           ],
           function(err, res) {
-            if (err) throw err;
-            // res.send('true');
-            // re-prompt the user for if they want to bid or post
-            // startPrompts();
+            if (err) throw err;            
     connection.query(
       "DELETE FROM employee WHERE ?",
             {          
@@ -522,7 +462,7 @@ function remEes() {
     });    
    
   });
-}
+}}
 
 // This step removes a department from the Department and EERole database tables
 function remDept() { 
@@ -548,8 +488,7 @@ function remDept() {
       connection.query(
         "DELETE FROM department WHERE ?",
         {
-          // department: answer.deptname
-          department_id: answer.deptid             
+           department_id: answer.deptid             
         },        
         function(err) {
           if (err) throw err;
