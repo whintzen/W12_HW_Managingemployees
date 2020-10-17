@@ -42,10 +42,6 @@ Open a terminal and type "node companydb.js", as this calls the application.  A 
    *  View all Employees by Manager - This selection will return a view of the Managers associated with an
       employee, ordered by department ID. (Employee and EERole tables are Inner Joined using Role_id, and the results is Inner Joined to Department using Department_id and everything is ordered by the department ID)
 
-   *  View all Employees by Titles/Roles - This selection will return a view of the employees by their Titles/
-      Roles.  (Employee and EERole tables are Inner Joined using Role_id and the results
-      is then Inner Joined to Department using Department_id and everything is ordered by the TITLE)
-
    *  View all Departments - This selection will return a view of All records from the Department table
 
    *  View all Roles - This selection will return all the Title\Roles. (EERole and Department tables are Inner 
@@ -92,7 +88,13 @@ Open a terminal and type "node companydb.js", as this calls the application.  A 
    *  Remove Department - NOTE: Because the department ID is a foreign key in the EEROLE table, a department
       cannot be deleted from the department table unless the Employees assigned to that depart are first 
       deleted/Removed.  Once the employees are removed, when this selection is processed, the department is removed.
-      To view if the department was removed, select the "View all Departments" from the list.     
+      To view if the department was removed, select the "View all Departments" from the list. 
+
+   *  View all Employees by Titles/Roles - This selection will return a view of the employees by their Titles/
+      Roles.  (Employee and EERole tables are Inner Joined using Role_id and the results
+      is then Inner Joined to Department using Department_id and everything is ordered by the TITLE)
+
+   *  Exit the Database Connection    
 
 # Tools:
  * Inquirer NPM Package – to prompt the user to either enter specific information or to select a item
@@ -105,7 +107,7 @@ Open a terminal and type "node companydb.js", as this calls the application.  A 
 # Links:
     GitHub Repository: https://github.com/whintzen/W12_HW_Managingemployees
     
-    Screencastify video:   
+    Screencastify video: 
+    https://drive.google.com/file/d/16jBn-hIE4odr2f1qco4GwBjGYVXXv5zV/view  
     
-    #Image:
-    <img src="images/Teams.png" alt="EngineeringTeam">
+    
